@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.it.dao.SmsUserDao">
+	<!-- 通过userid得到对应的用户信息 -->
+	<select id="getUserInfo" parameterType="int" resultType="SmsUser">
+		select *
+		from sms_user where userid=(#{value})
+	</select>
+	<!-- 得到所有用户信息 -->
+	<select id="getAllUser" resultType="SmsUser">
+		select * from sms_user
+	</select>
+
+	<!-- 向数据库中插入用户 -->
+	<insert id="insertUser" parameterType="SmsUser">
+		<!-- userid需自增 -->
+		<selectKey resultType="java.lang.Integer" order="BEFORE"
+			keyProperty="userid">
+			select userid.nextval from dual
+		</selectKey>
+		insert into sms_user
+		(userid, username, userpsw, usersex, usertel,
+		userbirth)
+		values
+		(#{userid}, #{username}, #{userpsw}, #{usersex},
+		#{usertel},
+		#{userbirth,jdbcType=DATE})
+	</insert>
+
+	<!-- 通过userid删除用户信息 -->
+	<delete id="deleteUser" parameterType="int">
+		delete from sms_user where
+		userid=(#{value})
+	</delete>
+
+	<!-- 通过usersex,username,userid来修改数据库中的用户信息 -->
+	<update id="updateUser" parameterType="com.it.entity.SmsUser">
+		update sms_user
+		set
+		username = (#{username}),
+		usersex = (#{usersex})
+		where userid =
+		(#{userid})
+	</update>
+
+	<update id="updateUser1">
+		update sms_user
+		set
+		username = (#{username}),
+		usersex =
+		(#{usersex})
+		where userid =
+		(#{userid})
+	</update>
+
+	<!-- 使用注解 -->
+	<select id="getUser1" resultType="com.it.entity.SmsUser">
+		select * from sms_user where
+		userid=(#{0}) and username=(#{1})
+	</select>
+
+	<!-- 模糊查询，通过部分字符串对应数据库中的用户名，找到用户信息 -->
+	<select id="findUser" parameterType="java.lang.String"
+		resultType="com.it.entity.SmsUser">
+		select * from sms_user where username like concat(concat('%',#{value}),'%')
+	</select>
+
+	<!-- 查询userid在A-B之间，username包含name字符串的User信息 -->
+	<select id="findUserByCond" parameterType="com.it.entity.QueryInfo"
+		resultType="com.it.entity.SmsUser">
+		select * from sms_user where username like
+		'%${nameInfo.name}%' and userid between (#{idInfo.minID}) and
+		(#{idInfo.maxID})
+	</select>
+	
+	<select id="getUserByMap" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select * from sms_user where username=#{value}
+	</select>
+</mapper>
